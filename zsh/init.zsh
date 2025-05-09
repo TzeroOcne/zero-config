@@ -152,6 +152,8 @@ alias dadbod='nvim -c "DBUI"'
 alias nvq='nvim -c "q"'
 alias rmshada='rm -rf $LOCALAPPDATA/nvim*data/shada/*'
 alias rmswap='rm -rf $LOCALAPPDATA/nvim*data/swap/*'
+alias lg='lazygit'
+alias gim='git init;git branch -M main;bannerDone'
 
 # Function to bind arrow keys outside of menuselect
 bindArrowKeys() {
@@ -186,7 +188,7 @@ zle-line-finish() {
 zle -N zle-line-init
 zle -N zle-line-finish
 
-eval "$(oh-my-posh init zsh --config /c/Users/$USERNAME/.config/nnry/zero.omp.yaml)"
+eval "$(oh-my-posh init zsh --config $HOME/.config/nnry/zero.omp.toml)"
 
 # Set up fzf key bindings and fuzzy completion
 eval "$(fzf --zsh)"
