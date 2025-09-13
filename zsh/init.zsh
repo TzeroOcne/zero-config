@@ -72,3 +72,7 @@ bindkey -M menuselect "$terminfo[kcbt]" reverse-menu-complete
 activateBanner
 
 export PATH="$HOME/.config/nnry/zsh/scripts:$PATH"
+
+fpath=($HOME/.config/nnry/zsh/completions $fpath)
+autoload -Uz compinit
+compinit

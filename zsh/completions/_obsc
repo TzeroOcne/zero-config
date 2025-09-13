@@ -1,0 +1,5 @@
+#compdef obsc
+
+# Main subcommands with descriptions
+_arguments \
+  '1:subcommand:((init:"Initialize the project" open:"Open an existing project"))'
