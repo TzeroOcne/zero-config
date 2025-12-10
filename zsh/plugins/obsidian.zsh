@@ -4,12 +4,28 @@ obsc() {
 
   case "$cmd" in
     init)
-      # --- Step 1: Create .obsidian folder with empty JSON files ---
+      # --- Step 1: Ensure .obsidian folder exists ---
       mkdir -p ".obsidian"
-      for f in app.json appearance.json core-plugins.json graph.json workspace.json; do
-        echo '{}' > ".obsidian/$f"
+
+      # Files to initialize
+      local files=(app.json appearance.json core-plugins.json graph.json workspace.json)
+
+      for f in "${files[@]}"; do
+        local file_path=".obsidian/$f"
+        if [[ ! -f "$file_path" ]]; then
+          echo '{}' > "$file_path"
+          echo "➕ Created $file_path"
+        else
+          # Validate JSON and ensure it's an object
+          if jq -e 'type == "object"' "$file_path" >/dev/null 2>&1; then
+            echo "✔ Valid $file_path"
+          else
+            echo '{}' > "$file_path"
+            echo "✘ Overwritten invalid $file_path"
+          fi
+        fi
       done
-      echo "Initialized .obsidian with empty JSON files."
+      echo "Initialized .obsidian with valid JSON files."
 
       # Path to obsidian.json
       local obsidian_json="$APPDATA/obsidian/obsidian.json"
@@ -18,7 +34,13 @@ obsc() {
       # Load existing or default
       local existing
       if [[ -f "$obsidian_json" ]]; then
-        existing=$(<"$obsidian_json")
+        if jq -e 'type == "object" and has("vaults")' "$obsidian_json" >/dev/null 2>&1; then
+          existing=$(<"$obsidian_json")
+        else
+          echo '{"vaults":{}}' > "$obsidian_json"
+          existing='{"vaults":{}}'
+          echo "✘ Overwritten invalid $obsidian_json"
+        fi
       else
         existing='{"vaults":{}}'
       fi
@@ -31,7 +53,7 @@ obsc() {
       if jq -e --arg path "$current_path" \
             '.vaults | to_entries[] | select(.value.path == $path)' \
             <<<"$existing" >/dev/null; then
-        echo "Vault already exists for path: $current_path"
+        echo "✔ Vault already exists for path: $current_path"
         return 0
       fi
 
@@ -59,7 +81,21 @@ obsc() {
             '.vaults[$id] = {"path":$path,"ts":$ts}' \
             <<<"$existing" > "$obsidian_json"
 
-      echo "Added new vault to $obsidian_json"
+      echo "➕ Added new vault to $obsidian_json"
+
+      # Ensure $vault_id.json exists inside $APPDATA/obsidian
+      local vault_file="$APPDATA/obsidian/$vault_id.json"
+      if [[ ! -f "$vault_file" ]]; then
+        echo '{}' > "$vault_file"
+        echo "➕ Created $vault_file"
+      else
+        if jq -e 'type == "object"' "$vault_file" >/dev/null 2>&1; then
+          echo "✔ Valid $vault_file"
+        else
+          echo '{}' > "$vault_file"
+          echo "✘ Overwritten invalid $vault_file"
+        fi
+      fi
       ;;
     open)
       # Current absolute path with backslashes

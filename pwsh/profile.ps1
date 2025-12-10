@@ -2,6 +2,7 @@ $ESC=[char]27
 
 $env:PATH += ";$env:LOCALAPPDATA\Microsoft\WinGet\Links"
 $env:PATH += ";$env:LOCALAPPDATA\Programs\oh-my-posh\bin"
+$env:PATH += ";C:\Program Files\gs\gs10.06.0\bin"
 
 function default-prompt
 {

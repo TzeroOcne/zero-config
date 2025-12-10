@@ -1,3 +1,8 @@
+export LOCALAPPDATA="$(cygpath $LOCALAPPDATA)"
+
+export PATH="$LOCALAPPDATA/Microsoft/WinGet/Links:$PATH"
+export PATH="$PATH:$LOCALAPPDATA/mise/shims"
+
 for file in "$HOME/.config/nnry/zsh/plugins"/*.zsh; do
   [ -f "$file" ] && source "$file"
 done
