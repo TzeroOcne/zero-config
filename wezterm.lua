@@ -1,11 +1,12 @@
 -- Pull in the wezterm API
-local wezterm = require("wezterm")
+local wezterm = require("wezterm") ---@type Wezterm
 local ws = wezterm.plugin.require("https://github.com/MLFlexer/smart_workspace_switcher.wezterm")
+local sessions = wezterm.plugin.require("https://github.com/abidibo/wezterm-sessions")
 local act = wezterm.action
 local mux = wezterm.mux
 
 -- This table will hold the configuration.
-local config = {}
+local config = wezterm.config_builder()
 
 -- In newer versions of wezterm, use the config_builder which will
 -- help provide clearer error messages
@@ -49,6 +50,14 @@ config.keys = {
     mods = "SHIFT|CTRL",
     action = act.Search { CaseInSensitiveString="" },
   },
+	{
+		key = "t",
+		mods = "CTRL|ALT",
+		action = act.SpawnCommandInNewTab{
+      cwd = '~',
+      domain = 'DefaultDomain',
+		},
+	},
 	{
 		key = "1",
 		mods = "CTRL|ALT",
@@ -128,88 +137,56 @@ config.keys = {
     mods = "ALT",
     action = ws.switch_workspace(),
   },
-  -- {
-  --   key = "w",
-  --   mods = "LEADER",
-  --   action = wezterm.action_callback(function(win, pane)
-  --       resurrect.state_manager.save_state(resurrect.workspace_state.get_workspace_state())
-  --     end),
-  -- },
-  -- {
-  --   key = "W",
-  --   mods = "LEADER",
-  --   action = resurrect.window_state.save_window_action(),
-  -- },
-  -- {
-  --   key = "T",
-  --   mods = "LEADER",
-  --   action = resurrect.tab_state.save_tab_action(),
-  -- },
-  -- {
-  --   key = "s",
-  --   mods = "LEADER",
-  --   action = wezterm.action_callback(function(win, pane)
-  --       resurrect.state_manager.save_state(resurrect.workspace_state.get_workspace_state())
-  --       resurrect.window_state.save_window_action()
-  --     end),
-  -- },
-  -- {
-  --   key = "r",
-  --   mods = "LEADER",
-  --   action = wezterm.action_callback(function(win, pane)
-  --     resurrect.fuzzy_loader.fuzzy_load(win, pane, function(id, label)
-  --       local type = string.match(id, "^([^/]+)") -- match before '/'
-  --       id = string.match(id, "([^/]+)$") -- match after '/'
-  --       id = string.match(id, "(.+)%..+$") -- remove file extention
-  --       local opts = {
-  --         relative = true,
-  --         restore_text = true,
-  --         on_pane_restore = resurrect.tab_state.default_on_pane_restore,
-  --       }
-  --       if type == "workspace" then
-  --         local state = resurrect.state_manager.load_state(id, "workspace")
-  --
-  --         win:perform_action(
-  --           wezterm.action.SwitchToWorkspace { name = state.workspace },
-  --           pane
-  --         )
-  --
-  --         resurrect.workspace_state.restore_workspace(state, {
-  --           spawn_in_workspace = true,
-  --           relative = true,
-  --           restore_text = true,
-  --           on_pane_restore = resurrect.tab_state.default_on_pane_restore,
-  --         })
-  --
-  --         -- close the automatically-created empty tab
-  --         win:perform_action(wezterm.action.CloseCurrentTab { confirm = false }, pane)
-  --
-  --         -- resurrect.workspace_state.restore_workspace(state, opts)
-  --       elseif type == "window" then
-  --         local state = resurrect.state_manager.load_state(id, "window")
-  --         resurrect.window_state.restore_window(pane:window(), state, opts)
-  --       elseif type == "tab" then
-  --         local state = resurrect.state_manager.load_state(id, "tab")
-  --         resurrect.tab_state.restore_tab(pane:tab(), state, opts)
-  --       end
-  --     end)
-  --   end),
-  -- },
-  -- {
-  --   key = "d",
-  --   mods = "ALT",
-  --   action = wezterm.action_callback(function(win, pane)
-  --     resurrect.fuzzy_loader.fuzzy_load(win, pane, function(id)
-  --         resurrect.state_manager.delete_state(id)
-  --       end,
-  --       {
-  --         title = "Delete State",
-  --         description = "Select State to Delete and press Enter = accept, Esc = cancel, / = filter",
-  --         fuzzy_description = "Search State to Delete: ",
-  --         is_fuzzy = true,
-  --       })
-  --   end),
-  -- },
+  {
+    key = "s",
+    mods = "LEADER",
+    action = act({ EmitEvent = "save_session" }),
+  },
+  {
+    key = 'l',
+    mods = 'LEADER',
+    action = act({ EmitEvent = "load_session" }),
+  },
+  {
+    key = 'r',
+    mods = 'LEADER',
+    action = act({ EmitEvent = "restore_session" }),
+  },
+  {
+    key = 'd',
+    mods = 'CTRL|SHIFT',
+    action = act({ EmitEvent = "delete_session" }),
+  },
+  {
+    key = 'e',
+    mods = 'CTRL|SHIFT',
+    action = act({ EmitEvent = "edit_session" }),
+  },
+-- Prompt for a name to use for a new workspace and switch to it.
+  {
+    key = 'n',
+    mods = 'LEADER',
+    action = act.PromptInputLine {
+      description = wezterm.format {
+        { Attribute = { Intensity = 'Bold' } },
+        { Foreground = { AnsiColor = 'Fuchsia' } },
+        { Text = 'Enter name for new workspace' },
+      },
+      action = wezterm.action_callback(function(window, pane, line)
+        -- line will be `nil` if they hit escape without entering anything
+        -- An empty string if they just hit enter
+        -- Or the actual line of text they wrote
+        if line then
+          window:perform_action(
+            act.SwitchToWorkspace {
+              name = line,
+            },
+            pane
+          )
+        end
+      end),
+    },
+  },
 }
 
 config.font = wezterm.font("JetBrainsMono Nerd Font")
