@@ -138,32 +138,44 @@ config.keys = {
     action = ws.switch_workspace(),
   },
   {
+    name = "Save Session",
+    description = "Save the current session",
     key = "s",
     mods = "LEADER",
     action = act({ EmitEvent = "save_session" }),
   },
   {
+    name = 'Load Session',
+    description = 'Load a saved session',
     key = 'l',
     mods = 'LEADER',
     action = act({ EmitEvent = "load_session" }),
   },
   {
+    name = 'Restore Session',
+    description = 'Restore the last saved session',
     key = 'r',
     mods = 'LEADER',
     action = act({ EmitEvent = "restore_session" }),
   },
   {
+    name = 'Delete Session',
+    description = 'Delete a saved session',
     key = 'd',
     mods = 'CTRL|SHIFT',
     action = act({ EmitEvent = "delete_session" }),
   },
   {
+    name = 'Edit Session',
+    description = 'Edit a saved session',
     key = 'e',
     mods = 'CTRL|SHIFT',
     action = act({ EmitEvent = "edit_session" }),
   },
 -- Prompt for a name to use for a new workspace and switch to it.
   {
+    name = 'New Workspace With Name',
+    description = 'Create a new workspace with a specified name',
     key = 'n',
     mods = 'LEADER',
     action = act.PromptInputLine {
