@@ -117,6 +117,14 @@ config.keys = {
 		}),
 	},
 	{
+		key = "Enter",
+		mods = "SHIFT",
+		action = act.SendKey({
+			key = "Enter",
+			mods = "SHIFT",
+		}),
+	},
+	{
 		key = " ",
 		mods = "CTRL|SHIFT",
 		action = act.SendKey({
