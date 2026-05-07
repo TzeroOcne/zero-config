@@ -1,7 +1,11 @@
 export LOCALAPPDATA="$(cygpath $LOCALAPPDATA)"
 
-export PATH="$LOCALAPPDATA/Microsoft/WinGet/Links:$PATH"
-export PATH="$PATH:$LOCALAPPDATA/mise/shims"
+PRE_PATH="$PREPATH:$LOCALAPPDATA/mise/shims"
+PRE_PATH="$PRE_PATH:$LOCALAPPDATA/Microsoft/WinGet/Links"
+export PATH="$PRE_PATH:$PATH"
+export PATH="$PATH:$LOCALAPPDATA/Microsoft/WinGet/Links"
+export PATH="$PATH:$LOCALAPPDATA/Programs/oh-my-posh/bin"
+export PATH="$PATH:$HOME/Path"
 
 for file in "$HOME/.config/nnry/zsh/plugins"/*.zsh; do
   [ -f "$file" ] && source "$file"
@@ -50,6 +54,9 @@ eval "$(oh-my-posh init zsh --config $HOME/.config/nnry/zero.omp.toml)"
 eval "$(fzf --zsh)"
 
 eval "$(zoxide init zsh --cmd cd)"
+
+# Set up zellij
+# eval "$(zellij setup --generate-auto-start zsh | tr -d '\r')"
 
 # Bind arrow keys when starting the shell
 bindArrowKeys
