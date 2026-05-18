@@ -6,7 +6,7 @@ local act = wezterm.action
 local mux = wezterm.mux
 
 -- This table will hold the configuration.
-local config = wezterm.config_builder()
+-- local config = wezterm.config_builder()
 
 -- In newer versions of wezterm, use the config_builder which will
 -- help provide clearer error messages
@@ -39,6 +39,11 @@ config.window_padding = {
 }
 
 config.keys = {
+  {
+    key = "x",
+    mods = "CTRL|ALT",
+    action = act.ActivateCopyMode,
+  },
   {
     key = "I",
     mods = "SHIFT|CTRL",
