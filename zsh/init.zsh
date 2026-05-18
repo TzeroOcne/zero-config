@@ -3,17 +3,18 @@ export LOCALAPPDATA="$(cygpath $LOCALAPPDATA)"
 PRE_PATH="$PREPATH:$LOCALAPPDATA/mise/shims"
 PRE_PATH="$PRE_PATH:$LOCALAPPDATA/Microsoft/WinGet/Links"
 export PATH="$PRE_PATH:$PATH"
-export PATH="$PATH:$LOCALAPPDATA/Microsoft/WinGet/Links"
+# export PATH="$PATH:$LOCALAPPDATA/Microsoft/WinGet/Links"
 export PATH="$PATH:$LOCALAPPDATA/Programs/oh-my-posh/bin"
 export PATH="$PATH:$HOME/Path"
 
-for file in "$HOME/.config/nnry/zsh/plugins"/*.zsh; do
+for file in "$HOME/.config/zero-config/zsh/plugins"/*.zsh; do
   [ -f "$file" ] && source "$file"
 done
 
+[ ! -d ~/.config/zsh/history ] && mkdir -p ~/.config/zsh/history
 HISTFILE=~/.config/zsh/history/.zsh_history
 
-. $HOME/.config/nnry/zsh/alias.zsh
+. $HOME/.config/zero-config/zsh/alias.zsh
 
 # Function to bind arrow keys outside of menuselect
 bindArrowKeys() {
@@ -48,7 +49,7 @@ zle-line-finish() {
 zle -N zle-line-init
 zle -N zle-line-finish
 
-eval "$(oh-my-posh init zsh --config $HOME/.config/nnry/zero.omp.toml)"
+eval "$(oh-my-posh init zsh --config $HOME/.config/zero-config/zero.omp.toml)"
 
 # Set up fzf key bindings and fuzzy completion
 eval "$(fzf --zsh)"
@@ -69,8 +70,25 @@ bindkey -M menuselect "$terminfo[kcbt]" reverse-menu-complete
 
 activateBanner
 
-export PATH="$HOME/.config/nnry/zsh/scripts:$PATH"
+export PATH="$HOME/.config/zero-config/zsh/scripts:$PATH"
 
-fpath=($HOME/.config/nnry/zsh/completions $fpath)
+fpath=($HOME/.config/zero-config/zsh/completions $fpath)
+
 autoload -Uz compinit
 compinit
+
+# zmodload zsh/complist
+#
+# # menu select
+# zstyle ':completion:*' menu select
+#
+# bindkey '^I' menu-select
+# bindkey "$terminfo[kcbt]" reverse-menu-select
+#
+# bindkey -M menuselect '^I' menu-complete
+# bindkey -M menuselect "$terminfo[kcbt]" reverse-menu-complete
+
+# Fix Start Path
+if [[ "$(pwd)" =~ ${HOME}$ ]]; then
+  cd
+fi
