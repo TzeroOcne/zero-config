@@ -122,6 +122,23 @@ start_named_ssh_agent() {
   echo "Loaded SSH agent: $agent_name ($SSH_AGENT_PID)"
 }
 
+prompt_new_ssh_agent_name() {
+  local agent_name
+
+  if command -v gum >/dev/null 2>&1; then
+    agent_name=$(gum input --placeholder="agent name")
+  else
+    read "agent_name?New SSH agent name: "
+  fi
+
+  [[ -n "$agent_name" ]] || {
+    echo "Agent name is required."
+    return 1
+  }
+
+  print -r -- "$agent_name"
+}
+
 load_named_ssh_agent() {
   local agent_name="$1"
   local env_file
@@ -236,7 +253,7 @@ kill_named_ssh_agent() {
   echo "Removed SSH agent: $agent_name"
 }
 
-select_named_ssh_agent() {
+load_or_create_named_ssh_agent() {
   local env_files
   local env_file
   local agent_names=()
@@ -255,8 +272,9 @@ select_named_ssh_agent() {
   done
 
   if [[ ${#agent_names[@]} -eq 0 ]]; then
-    echo "No saved SSH agents. Starting a new one requires a name."
-    return 1
+    agent_name="$(prompt_new_ssh_agent_name)" || return 1
+    start_named_ssh_agent "$agent_name"
+    return $?
   fi
 
   if command -v gum >/dev/null 2>&1; then
@@ -269,17 +287,7 @@ select_named_ssh_agent() {
   fi
 
   if [[ "$selected" == "Start new agent" ]]; then
-    if command -v gum >/dev/null 2>&1; then
-      agent_name=$(gum input --placeholder="agent name")
-    else
-      read "agent_name?New SSH agent name: "
-    fi
-
-    [[ -n "$agent_name" ]] || {
-      echo "Agent name is required."
-      return 1
-    }
-
+    agent_name="$(prompt_new_ssh_agent_name)" || return 1
     start_named_ssh_agent "$agent_name"
     return $?
   fi
@@ -296,7 +304,7 @@ load_current_ssh_agent() {
   if [[ -n "$1" ]]; then
     load_named_ssh_agent "$1"
   else
-    select_named_ssh_agent
+    load_or_create_named_ssh_agent
   fi
 }
 
@@ -322,8 +330,7 @@ kill_current_ssh_agent() {
 }
 
 alias ssh-agent-start='start_named_ssh_agent'
-alias ssh-agent-load='load_named_ssh_agent'
+alias ssh-agent-load='load_current_ssh_agent'
 alias ssh-agent-list='list_ssh_agents'
 alias ssh-agent-kill='kill_named_ssh_agent'
-alias ssh-agent-select='select_named_ssh_agent'
 alias ssh-agent-clean='cleanup_dead_ssh_agents'
