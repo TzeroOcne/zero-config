@@ -55,6 +55,33 @@ ssh_agent_read_value() {
   )
 }
 
+cleanup_dead_ssh_agents() {
+  local env_files
+  local env_file
+  local agent_name
+  local agent_pid
+  local removed=0
+
+  setopt local_options null_glob
+  env_files=("$SSH_AGENT_ENV_DIR"/*.env)
+
+  for env_file in "${env_files[@]}"; do
+    if ssh_agent_env_is_valid "$env_file"; then
+      continue
+    fi
+
+    agent_name="${env_file:t:r}"
+    agent_pid="$(ssh_agent_read_value "$env_file" SSH_AGENT_PID 2>/dev/null)"
+    echo "Removed dead SSH agent: $agent_name${agent_pid:+ ($agent_pid)}"
+    rm -f "$env_file"
+    removed=$((removed + 1))
+  done
+
+  if [[ "$removed" -eq 0 ]]; then
+    echo "No dead SSH agents found."
+  fi
+}
+
 ssh_agent_validate_name() {
   local agent_name="$1"
 
@@ -134,6 +161,8 @@ list_ssh_agents() {
   local agent_pid
   local key_summary
 
+  cleanup_dead_ssh_agents >/dev/null
+
   setopt local_options null_glob
   env_files=("$SSH_AGENT_ENV_DIR"/*.env)
 
@@ -157,9 +186,6 @@ list_ssh_agents() {
       else
         echo "[alive] $agent_name ($agent_pid)"
       fi
-    else
-      echo "[dead ] $agent_name${agent_pid:+ ($agent_pid)}"
-      rm -f "$env_file"
     fi
   done
 }
@@ -217,15 +243,14 @@ select_named_ssh_agent() {
   local selected
   local agent_name
 
+  cleanup_dead_ssh_agents >/dev/null
+
   setopt local_options null_glob
   env_files=("$SSH_AGENT_ENV_DIR"/*.env)
 
   for env_file in "${env_files[@]}"; do
     if ssh_agent_env_is_valid "$env_file"; then
       agent_names+=("${env_file:t:r}")
-    else
-      echo "[dead ] ${env_file:t:r}"
-      rm -f "$env_file"
     fi
   done
 
@@ -301,3 +326,4 @@ alias ssh-agent-load='load_named_ssh_agent'
 alias ssh-agent-list='list_ssh_agents'
 alias ssh-agent-kill='kill_named_ssh_agent'
 alias ssh-agent-select='select_named_ssh_agent'
+alias ssh-agent-clean='cleanup_dead_ssh_agents'
