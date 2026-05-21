@@ -56,6 +56,10 @@ eval "$(fzf --zsh)"
 
 eval "$(zoxide init zsh --cmd cd)"
 
+if [[ "$OS" == "Windows_NT" && "$TERM_PROGRAM" == "WezTerm" ]]; then
+  source "$HOME/.config/zero-config/zsh/integration/wezterm/windows-bash-osc.sh"
+fi
+
 # Set up zellij
 # eval "$(zellij setup --generate-auto-start zsh | tr -d '\r')"
 
