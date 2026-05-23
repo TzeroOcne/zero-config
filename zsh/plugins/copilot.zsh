@@ -26,10 +26,10 @@ nvcop () {
 
   if copilot_cache_has_name "$name"; then
     echo "Resuming session with name: $name"
-    EDITOR=nvim copilot --resume="$name"
+    EDITOR=neovide copilot --resume="$name"
   else
     copilot_cache_store_name "$name" || return 1
     echo "Starting new session with name: $name"
-    EDITOR=nvim copilot --name="$name"
+    EDITOR=neovide copilot --name="$name"
   fi
 }
