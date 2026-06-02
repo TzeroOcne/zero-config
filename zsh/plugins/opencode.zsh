@@ -25,12 +25,17 @@ nvopc() {
   hash=$(opencode_dir_hash)
   session_id=$(opencode_cached_session "$hash")
 
-  if [[ -n "$session_id" ]]; then
+  if [[ -n "$session_id" && $# -eq 0 ]]; then
     echo "Resuming session $session_id for $PWD"
     opencode --session "$session_id"
   else
-    echo "Starting new session for $PWD"
-    opencode
+    if [[ $# -gt 0 ]]; then
+      echo "Starting new session for $PWD with prompt: $*"
+      EDITOR=nvim opencode --prompt "$*"
+    else
+      echo "Starting new session for $PWD"
+      EDITOR=nvim opencode
+    fi
     # Cache the last session ID upon exit
     if [[ $? -eq 0 ]]; then
       local last_session
