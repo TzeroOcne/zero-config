@@ -1,29 +1,32 @@
 $ESC=[char]27
 
+$CONFIG_ROOT = Join-Path $PSScriptRoot ".."
+
 $env:PATH += ";$env:LOCALAPPDATA\Microsoft\WinGet\Links"
 $env:PATH += ";$env:LOCALAPPDATA\Programs\oh-my-posh\bin"
 $env:PATH += ";C:\Program Files\gs\gs10.06.0\bin"
 
-function default-prompt
-{
-  "PS $($executionContext.SessionState.Path.CurrentLocation)$('>' * ($nestedPromptLevel + 1)) "
-  # .Link
-  # https://go.microsoft.com/fwlink/?LinkID=225750
-  # .ExternalHelp System.Management.Automation.dll-help.xml
-}
-
-function prompt
-{
-  $IN_GIT=$(git rev-parse --is-inside-work-tree)
-  $GIT_BRANCH=""
-  if ($IN_GIT)
-  {
-    $GIT_BRANCH="($ESC[92m$((git branch --show-current).TrimStart("* "))$ESC[0m)"
-  }
-  "$env:CONDA_PROMPT_MODIFIER
-PS $ESC[96m$($executionContext.SessionState.Path.CurrentLocation)$ESC[0m $GIT_BRANCH
-> "
-}
+# default-prompt and prompt overridden by oh-my-posh init below
+#function default-prompt
+#{
+#  "PS $($executionContext.SessionState.Path.CurrentLocation)$('>' * ($nestedPromptLevel + 1)) "
+#  # .Link
+#  # https://go.microsoft.com/fwlink/?LinkID=225750
+#  # .ExternalHelp System.Management.Automation.dll-help.xml
+#}
+#
+#function prompt
+#{
+#  $IN_GIT=$(git rev-parse --is-inside-work-tree)
+#  $GIT_BRANCH=""
+#  if ($IN_GIT)
+#  {
+#    $GIT_BRANCH="($ESC[92m$((git branch --show-current).TrimStart("* "))$ESC[0m)"
+#  }
+#  "$env:CONDA_PROMPT_MODIFIER
+#PS $ESC[96m$($executionContext.SessionState.Path.CurrentLocation)$ESC[0m $GIT_BRANCH
+#> "
+#}
 
 function inkscape {
     & "C:\Program Files\Inkscape\bin\inkscape.com" @args
@@ -36,7 +39,7 @@ $ColorScheme = @{
 
 Set-PSReadLineOption -Colors $ColorScheme
 
-Import-Module posh-git
+# Import-Module posh-git  # git status handled by oh-my-posh
 Import-Module PSFzf
 Import-Module "$env:ChocolateyInstall\helpers\chocolateyInstaller.psm1" -Force
 
@@ -54,4 +57,5 @@ Set-PsFzfOption -TabExpansion
 Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
 
 oh-my-posh init pwsh --config "$HOME\.config\oh-my-posh\starter.omp.json"|Invoke-Expression
+
 Invoke-Expression (& { (zoxide init powershell --cmd cd| Out-String) })
