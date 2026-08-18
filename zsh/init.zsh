@@ -1,20 +1,26 @@
 export LOCALAPPDATA="$(cygpath $LOCALAPPDATA)"
+ZSH_CONFIG_ROOT="${0:A:h}"
+CONFIG_ROOT="$ZSH_CONFIG_ROOT/.."
 
-PRE_PATH="$PREPATH:$LOCALAPPDATA/mise/shims"
+export MISE_CONFIG_DIR="$CONFIG_ROOT/mise"
+eval "$(mise activate zsh 2>/dev/null | sed 's|C:\\Users\\qk\\scoop\\apps\\mise\\current\\bin\\mise\.exe|mise|g')"
+
+# PRE_PATH="$PREPATH:$LOCALAPPDATA/mise/shims"
 PRE_PATH="$PRE_PATH:$LOCALAPPDATA/Microsoft/WinGet/Links"
 export PATH="$PRE_PATH:$PATH"
 # export PATH="$PATH:$LOCALAPPDATA/Microsoft/WinGet/Links"
 export PATH="$PATH:$LOCALAPPDATA/Programs/oh-my-posh/bin"
 export PATH="$PATH:$HOME/Path"
 
-for file in "$HOME/.config/zero-config/zsh/plugins"/*.zsh; do
+for file in "$ZSH_CONFIG_ROOT/plugins"/*.zsh; do
   [ -f "$file" ] && source "$file"
 done
 
 [ ! -d ~/.config/zsh/history ] && mkdir -p ~/.config/zsh/history
 HISTFILE=~/.config/zsh/history/.zsh_history
 
-. $HOME/.config/zero-config/zsh/alias.zsh
+source $ZSH_CONFIG_ROOT/alias.zsh
+[ -f "$ZSH_CONFIG_ROOT/env.zsh" ] && source "$ZSH_CONFIG_ROOT/env.zsh"
 
 # Function to bind arrow keys outside of menuselect
 bindArrowKeys() {
@@ -49,7 +55,7 @@ zle-line-finish() {
 zle -N zle-line-init
 zle -N zle-line-finish
 
-eval "$(oh-my-posh init zsh --config $HOME/.config/zero-config/zero.omp.toml)"
+eval "$(oh-my-posh init zsh --config $CONFIG_ROOT/zero.omp.toml)"
 
 # Set up fzf key bindings and fuzzy completion
 eval "$(fzf --zsh)"
@@ -57,7 +63,7 @@ eval "$(fzf --zsh)"
 eval "$(zoxide init zsh --cmd cd)"
 
 if [[ "$OS" == "Windows_NT" && "$TERM_PROGRAM" == "WezTerm" ]]; then
-  source "$HOME/.config/zero-config/zsh/integration/wezterm/windows-bash-osc.sh"
+  source "$ZSH_CONFIG_ROOT/integration/wezterm/windows-bash-osc.sh"
 fi
 
 # Set up zellij
@@ -74,9 +80,9 @@ bindkey -M menuselect "$terminfo[kcbt]" reverse-menu-complete
 
 activateBanner
 
-export PATH="$HOME/.config/zero-config/zsh/scripts:$PATH"
+export PATH="$ZSH_CONFIG_ROOT/scripts:$PATH"
 
-fpath=($HOME/.config/zero-config/zsh/completions $fpath)
+fpath=($ZSH_CONFIG_ROOT/completions $fpath)
 
 autoload -Uz compinit
 compinit
