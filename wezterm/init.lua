@@ -18,6 +18,7 @@ end
 
 -- For example, changing the color scheme:
 config.color_scheme = "Tokyo Night"
+-- config.front_end = "WebGpu"
 
 -- Spawn a fish shell in login mode
 config.set_environment_variables = {
@@ -205,6 +206,10 @@ config.keys = {
           window:perform_action(
             act.SwitchToWorkspace {
               name = line,
+              spawn = {
+                domain = 'DefaultDomain',
+                cwd = '~',
+              },
             },
             pane
           )
