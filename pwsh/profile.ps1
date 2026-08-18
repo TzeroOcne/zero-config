@@ -1,6 +1,7 @@
 $ESC=[char]27
 
 $CONFIG_ROOT = Join-Path $PSScriptRoot ".."
+$env:MISE_CONFIG_DIR="$CONFIG_ROOT/mise"
 
 $env:PATH += ";$env:LOCALAPPDATA\Microsoft\WinGet\Links"
 $env:PATH += ";$env:LOCALAPPDATA\Programs\oh-my-posh\bin"
@@ -56,6 +57,8 @@ Set-PsFzfOption -TabExpansion
 # replace 'Ctrl+t' and 'Ctrl+r' with your preferred bindings:
 Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
 
-oh-my-posh init pwsh --config "$HOME\.config\oh-my-posh\starter.omp.json"|Invoke-Expression
+oh-my-posh init pwsh --config "$CONFIG_ROOT\zero.omp.toml"|Invoke-Expression
 
 Invoke-Expression (& { (zoxide init powershell --cmd cd| Out-String) })
+
+(&mise activate pwsh) | Out-String | Invoke-Expression
