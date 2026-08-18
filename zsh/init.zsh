@@ -3,9 +3,8 @@ ZSH_CONFIG_ROOT="${0:A:h}"
 CONFIG_ROOT="$ZSH_CONFIG_ROOT/.."
 
 export MISE_CONFIG_DIR="$CONFIG_ROOT/mise"
-eval "$(mise activate zsh 2>/dev/null | sed 's|C:\\Users\\qk\\scoop\\apps\\mise\\current\\bin\\mise\.exe|mise|g')"
 
-# PRE_PATH="$PREPATH:$LOCALAPPDATA/mise/shims"
+PRE_PATH="$LOCALAPPDATA/mise/shims"
 PRE_PATH="$PRE_PATH:$LOCALAPPDATA/Microsoft/WinGet/Links"
 export PATH="$PRE_PATH:$PATH"
 # export PATH="$PATH:$LOCALAPPDATA/Microsoft/WinGet/Links"
